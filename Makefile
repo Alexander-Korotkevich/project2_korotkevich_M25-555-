@@ -1,7 +1,7 @@
 install:
 				poetry install
 project:
-				poetry run project
+				poetry run database
 build:
 				poetry build
 publish:

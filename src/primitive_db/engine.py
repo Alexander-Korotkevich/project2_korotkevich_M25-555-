@@ -1,7 +1,10 @@
 import shlex
-from src.primitive_db.utils import load_metadata, save_metadata
+
 import prompt
+
 import src.primitive_db.constants as const
+import src.primitive_db.core as core
+import src.primitive_db.utils as utils
 
 
 def print_help():
@@ -28,21 +31,45 @@ def exit() -> bool:
 def run():
     is_active = True
 
+    # Показываем команды при запуске
+    print_help()
+
     while is_active:
-        metadata = load_metadata("./db_meta.json")
+        changed_data = None
+        metadata = utils.load_metadata(const.METADATA_PATH)
+        print("\nmetadata: ", metadata, "\n")
         user_input = prompt.string("Введите команду: ")
         args = shlex.split(user_input)
+        command = args[0]
+        table_name = utils.get_table_name(args)
 
-        match (args[0]):
+        if not table_name and (
+            command in [const.CMD_CREATE_TABLE, const.CMD_DROP_TABLE]
+        ):
+            print("Укажите название таблицы.")
+            continue
+
+        match (command):
             case const.CMD_CREATE_TABLE:
-                pass
-            case const.CMD_LIST_TABLES:
-                pass
+                columns = utils.get_table_columns(args)
+                if columns is None:
+                    continue
+
+                changed_data = core.create_table(metadata, table_name, columns)
             case const.CMD_DROP_TABLE:
-                pass
+                changed_data = core.drop_table(metadata, table_name)
+            case const.CMD_LIST_TABLES:
+                core.list_tables(metadata)
+                continue
             case const.CMD_EXIT:
                 is_active = exit()
                 continue
             case const.CMD_HELP:
                 print_help()
                 continue
+            case _:
+                print(f"Функции {command} нет. Попробуйте снова.")
+                continue
+
+        if changed_data:
+            utils.save_metadata(const.METADATA_PATH, changed_data)
