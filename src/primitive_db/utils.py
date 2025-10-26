@@ -54,14 +54,10 @@ def get_table_columns(list: List[str]) -> List[ColumnType] | str:
     for i, column in enumerate(columns):
         splitted = column.split(COLUMN_DEFINE_SEP)
 
-        if (
-            len(splitted) < 3
-            or (COLUMN_DEFINE_SEP not in splitted)
-            or len(splitted) > 3
-        ):
+        if len(splitted) != 2 or (COLUMN_DEFINE_SEP not in splitted):
             incorrect_value(column)
             return None
 
-        parsed_columns.append({"name": splitted[0], "type": splitted[2]})
+        parsed_columns.append({"name": splitted[0], "type": splitted[1]})
 
     return parsed_columns
