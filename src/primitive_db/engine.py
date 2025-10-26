@@ -37,7 +37,6 @@ def run():
     while is_active:
         changed_data = None
         metadata = utils.load_metadata(const.METADATA_PATH)
-        print("\nmetadata: ", metadata, "\n")
         user_input = prompt.string("Введите команду: ")
         args = shlex.split(user_input)
         command = args[0]
