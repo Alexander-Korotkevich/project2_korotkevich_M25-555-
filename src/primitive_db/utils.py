@@ -54,7 +54,7 @@ def parse_table_columns(list: List[str]) -> List[ColumnType] | str:
     for i, column in enumerate(columns):
         splitted = column.split(COLUMN_DEFINE_SEP)
 
-        if len(splitted) != 2 or (COLUMN_DEFINE_SEP not in splitted):
+        if len(splitted) != 2:
             incorrect_value(column)
             return None
 
