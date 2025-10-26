@@ -13,7 +13,7 @@ def create_table(
         print(f'Ошибка: Таблица "{table_name}" уже существует')
         return
 
-    if any(column.type not in DATA_TYPES for column in columns):
+    if any(column.get('type') not in DATA_TYPES for column in columns):
         print("Ошибка: Некорректный тип данных")
         return
 
