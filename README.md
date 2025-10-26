@@ -46,3 +46,7 @@ table1,
 table2,
 ...
 ```
+
+[![Demo](https://asciinema.org/a/EbDWyR28r1ZMx8eJrvZ4cseOs.svg)](https://asciinema.org/a/EbDWyR28r1ZMx8eJrvZ4cseOs)
+
+<hr />
