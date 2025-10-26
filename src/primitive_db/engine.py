@@ -40,7 +40,7 @@ def run():
         user_input = prompt.string("Введите команду: ")
         args = shlex.split(user_input)
         command = args[0]
-        table_name = utils.get_table_name(args)
+        table_name = utils.parse_table_name(args)
 
         if not table_name and (
             command in [const.CMD_CREATE_TABLE, const.CMD_DROP_TABLE]
@@ -50,7 +50,7 @@ def run():
 
         match (command):
             case const.CMD_CREATE_TABLE:
-                columns = utils.get_table_columns(args)
+                columns = utils.parse_table_columns(args)
                 if columns is None:
                     continue
 

@@ -28,7 +28,7 @@ def save_metadata(filepath: str, data: MetadataType) -> bool:
         return False
 
 
-def get_table_name(list: List[str]) -> str | None:
+def parse_table_name(list: List[str]) -> str | None:
     """Получение названия таблицы из списка аргументов"""
 
     if len(list) < 2:
@@ -41,7 +41,7 @@ def incorrect_value(value: str):
     print(f"Некорректное значение: {value}. Попробуйте снова.")
 
 
-def get_table_columns(list: List[str]) -> List[ColumnType] | str:
+def parse_table_columns(list: List[str]) -> List[ColumnType] | str:
     """Получение колонок из списка аргументов"""
 
     if len(list) < 3:
