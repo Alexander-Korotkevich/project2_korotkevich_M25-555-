@@ -36,7 +36,7 @@ def run():
 
     while is_active:
         changed_data = None
-        metadata = utils.load_metadata(const.METADATA_PATH)
+        metadata = utils.load_metadata()
         user_input = prompt.string("Введите команду: ")
         args = shlex.split(user_input)
         command = args[0]
@@ -70,5 +70,5 @@ def run():
                 print(f"Функции {command} нет. Попробуйте снова.")
                 continue
 
-        if changed_data:
-            utils.save_metadata(const.METADATA_PATH, changed_data)
+        if changed_data is not None:
+            utils.save_metadata(changed_data)

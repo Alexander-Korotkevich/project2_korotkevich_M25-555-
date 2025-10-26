@@ -13,5 +13,7 @@ CMD_LIST_TABLES = "list_tables"
 CMD_EXIT = "exit"
 CMD_HELP = "help"
 
-METADATA_PATH = "./db_meta.json"
+METADATA_NAME = "./db_meta.json"
+TABLES_DIR = 'data'
+
 COLUMN_DEFINE_SEP = ":"

@@ -2,6 +2,7 @@ from typing import List
 
 from src.primitive_db.constants import DATA_TYPES, ID_COLUMN_DATA, ID_COLUMN_NAME
 from src.primitive_db.types import ColumnType, MetadataType
+from src.primitive_db.utils import delete_table, save_table_data
 
 
 def create_table(
@@ -13,7 +14,7 @@ def create_table(
         print(f'Ошибка: Таблица "{table_name}" уже существует')
         return
 
-    if any(column.get('type') not in DATA_TYPES for column in columns):
+    if any(column.get("type") not in DATA_TYPES for column in columns):
         print("Ошибка: Некорректный тип данных")
         return
 
@@ -27,7 +28,16 @@ def create_table(
     columns_str = ", ".join(
         f"{column.get('name')}:{column.get('type')}" for column in columns
     )
-    print(f'Таблица "{table_name}" успешно создана со столбцами: {columns_str}')
+
+    # Сохраняем таблицу
+    is_success = save_table_data(
+        table_name, {"name": table_name, "columns": columns, "rows": []}
+    )
+
+    if is_success:
+        print(f'Таблица "{table_name}" успешно создана со столбцами: {columns_str}')
+    else:
+        del metadata[table_name]
 
     return metadata
 
@@ -40,6 +50,7 @@ def drop_table(metadata: MetadataType, table_name: str) -> MetadataType:
         return
 
     del metadata[table_name]
+    delete_table(table_name)
 
     print(f'Таблица "{table_name}" успешно удалена.')
 

@@ -6,10 +6,14 @@ class ColumnType(TypedDict):
     type: str
 
 
-class TableType(TypedDict):
+class TableMetaType(TypedDict):
     name: str
     columns: List[ColumnType]
 
 
 class MetadataType(TypedDict):
-    tables: Dict[str, TableType]
+    tables: Dict[str, TableMetaType]
+
+
+class TableType(TableMetaType):
+    rows: List[Dict[str, int | str | bool]]
