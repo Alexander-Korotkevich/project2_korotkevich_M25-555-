@@ -1,7 +1,11 @@
 from typing import List
 
-from src.primitive_db.constants import DATA_TYPES, ID_COLUMN_DATA, ID_COLUMN_NAME
-from src.primitive_db.types import ColumnType, MetadataType
+from src.primitive_db.constants import (
+    DATA_TYPES,
+    ID_COL_DATA,
+    ID_COL_NAME,
+)
+from src.primitive_db.types import ColumnType, MetadataType, TableType
 from src.primitive_db.utils import delete_table, save_table_data
 
 
@@ -19,8 +23,8 @@ def create_table(
         return
 
     # Добавляем колонку ID, если она не была указана пользователем
-    if ID_COLUMN_NAME not in columns:
-        columns.insert(0, ID_COLUMN_DATA)
+    if ID_COL_NAME not in columns:
+        columns.insert(0, ID_COL_DATA)
 
     # Обновляем metadata
     metadata[table_name] = columns
@@ -65,3 +69,69 @@ def list_tables(metadata: MetadataType):
     tables_list = ",\n".join(f"{table}" for table in tables)
 
     print(title + (tables_list or "пусто"))
+
+
+def insert(tabledata: TableType, values: List[str | int | bool]):
+    """Создание новой записи в таблицу"""
+
+    columns = tabledata.get("columns")
+    col_without_id = filter(lambda x: x.get("name") != ID_COL_NAME, columns)
+    rows = tabledata.get("rows")
+
+    if len(values) != (len(col_without_id)):
+        print("Ошибка: Некорректное количество значений")
+        return
+
+    row = {ID_COL_NAME: len(rows) + 1}
+
+    for i, val in enumerate(values):
+        column_type = col_without_id[i].get("type")
+        column_name = col_without_id[i].get("name")
+
+        if not isinstance(val, column_type):
+            print(f'Ошибка: Значение {val} не соответствует типу "{column_type}"')
+            return
+
+        row[column_name] = val
+
+    tabledata["rows"].append(row)
+
+    return tabledata
+
+
+def print_help():
+    """Prints the help message for the current mode."""
+
+    print("\n***Процесс работы с таблицей***")
+    print("Функции:")
+    print("<command> create_table <имя_таблицы> <столбец1:тип> .. - создать таблицу")
+    print("<command> list_tables - показать список всех таблиц")
+    print("<command> drop_table <имя_таблицы> - удалить таблицу")
+
+    print("\n***Операции с данными***")
+    print("Функции:")
+    print(
+        "<command> insert into <имя_таблицы> values (<значение1>, <значение2>, ...) - создать запись."  # noqa: E501
+    )
+    print(
+        "<command> select from <имя_таблицы> where <столбец> = <значение> - прочитать записи по условию."  # noqa: E501
+    )
+    print("<command> select from <имя_таблицы> - прочитать все записи.")
+    print(
+        "<command> update <имя_таблицы> set <столбец1> = <новое_значение1> where <столбец_условия> = <значение_условия> - обновить запись."  # noqa: E501
+    )
+    print(
+        "<command> delete from <имя_таблицы> where <столбец> = <значение> - удалить запись."  # noqa: E501
+    )
+    print("<command> info <имя_таблицы> - вывести информацию о таблице.")
+
+    print("\nОбщие команды:")
+    print("<command> exit - выход из программы")
+    print("<command> help - справочная информация\n")
+
+
+def exit() -> bool:
+    """Выход из программы"""
+
+    print("Программа завершена")
+    return False

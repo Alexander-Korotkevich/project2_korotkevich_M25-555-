@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 
 from src.primitive_db.constants import (
     COLUMN_DEFINE_SEP,
+    COMPLEX_CMD,
     METADATA_NAME,
     TABLES_DIR,
 )
@@ -24,7 +25,6 @@ def load_from_file(filepath: str) -> Dict | None:
         return {}
     except Exception as e:
         print(f"Неожиданная ошибка: {e}")
-        return None
 
 
 def save_to_file(filepath: str, data: Any):
@@ -74,11 +74,15 @@ def delete_table(table_name: str):
     os.remove(path)
 
 
-def parse_table_name(list: List[str]) -> str | None:
+def parse_table_name(list: List[str], command: str) -> str | None:
     """Получение названия таблицы из списка аргументов"""
+    length = len(list)
+    if length < 2:
+        return
 
-    if len(list) < 2:
-        return None
+    # В случае комплексной команды ищем 3-ий аргумент
+    if command in COMPLEX_CMD:
+        return None if length < 3 else list[2]
 
     return list[1]
 
@@ -102,8 +106,11 @@ def parse_table_columns(list: List[str]) -> List[ColumnType] | str:
 
         if len(splitted) != 2:
             incorrect_value(column)
-            return None
+            return
 
         parsed_columns.append({"name": splitted[0], "type": splitted[1]})
 
     return parsed_columns
+
+def parse_insert_values(list: List[str]):
+    pass
