@@ -36,3 +36,5 @@ METADATA_NAME = "./db_meta.json"
 TABLES_DIR = "data"
 
 COLUMN_DEFINE_SEP = ":"
+
+KEY_WORD_VALUES = "values"

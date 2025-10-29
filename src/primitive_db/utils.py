@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 from src.primitive_db.constants import (
     COLUMN_DEFINE_SEP,
     COMPLEX_CMD,
+    KEY_WORD_VALUES,
     METADATA_NAME,
     TABLES_DIR,
 )
@@ -112,5 +113,94 @@ def parse_table_columns(list: List[str]) -> List[ColumnType] | str:
 
     return parsed_columns
 
-def parse_insert_values(list: List[str]):
-    pass
+
+def parse_insert(query):
+    # Находим VALUES и скобки
+    sql_lower = query.lower()
+    values_idx = sql_lower.find(KEY_WORD_VALUES)
+    if values_idx == -1:
+       incorrect_value(query)
+       return
+
+    # Ищем скобки с значениями
+    open_bracket = query.find("(", values_idx)
+    close_bracket = query.rfind(")")
+
+    if open_bracket == -1 or close_bracket == -1:
+       incorrect_value(query)
+       return
+
+    # Извлекаем содержимое скобок
+    content = query[open_bracket + 1 : close_bracket].strip()
+
+    return parse_values(content)
+
+
+def parse_values(content):
+    """Парсит список значений, разделенных запятыми"""
+    if not content:
+        return []
+
+    values = []
+    current = []
+    in_string = False
+    quote_char = None
+
+    for char in content:
+        if char in ("'", '"') and not in_string:
+            # Начало строки
+            in_string = True
+            quote_char = char
+            current.append(char)
+        elif char == quote_char and in_string:
+            # Конец строки
+            in_string = False
+            current.append(char)
+        elif char == "," and not in_string:
+            # Конец значения
+            value_str = "".join(current).strip()
+            if value_str:
+                values.append(convert_value(value_str))
+            current = []
+        else:
+            current.append(char)
+
+    # Обрабатываем последнее значение
+    if current:
+        value_str = "".join(current).strip()
+        if value_str:
+            values.append(convert_value(value_str))
+
+    return values
+
+
+def convert_value(value_str):
+    """Конвертирует строку в int, str или bool"""
+    value_str = value_str.strip()
+
+    # Булевы значения
+    if value_str.upper() == "TRUE":
+        return True
+    if value_str.upper() == "FALSE":
+        return False
+
+    # Строки в кавычках
+    if (value_str.startswith("'") and value_str.endswith("'")) or (
+        value_str.startswith('"') and value_str.endswith('"')
+    ):
+        return value_str[1:-1]  # Убираем кавычки
+
+    # Целые числа
+    if value_str.isdigit() or (value_str.startswith("-") and value_str[1:].isdigit()):
+        return int(value_str)
+
+    # Если ничего не подошло - возвращаем как строку (без кавычек)
+    return value_str
+
+def check_val_type(val: Any, col_type: str):
+    if col_type == "str":
+        return isinstance(val, str)
+    if col_type == "int":
+        return type(val) is int
+    if col_type == "bool":
+        return isinstance(val, bool)

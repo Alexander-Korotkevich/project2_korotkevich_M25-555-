@@ -6,7 +6,7 @@ from src.primitive_db.constants import (
     ID_COL_NAME,
 )
 from src.primitive_db.types import ColumnType, MetadataType, TableType
-from src.primitive_db.utils import delete_table, save_table_data
+from src.primitive_db.utils import check_val_type, delete_table, save_table_data
 
 
 def create_table(
@@ -75,7 +75,7 @@ def insert(tabledata: TableType, values: List[str | int | bool]):
     """Создание новой записи в таблицу"""
 
     columns = tabledata.get("columns")
-    col_without_id = filter(lambda x: x.get("name") != ID_COL_NAME, columns)
+    col_without_id = list(filter(lambda x: x.get("name") != ID_COL_NAME, columns))
     rows = tabledata.get("rows")
 
     if len(values) != (len(col_without_id)):
@@ -88,13 +88,17 @@ def insert(tabledata: TableType, values: List[str | int | bool]):
         column_type = col_without_id[i].get("type")
         column_name = col_without_id[i].get("name")
 
-        if not isinstance(val, column_type):
+        if check_val_type(val, column_type) is False:
             print(f'Ошибка: Значение {val} не соответствует типу "{column_type}"')
             return
 
         row[column_name] = val
 
     tabledata["rows"].append(row)
+
+    print(
+        f'Запись с ID={row.get(ID_COL_NAME)} успешно добавлена в таблицу "{tabledata.get("name")}".'  # noqa: E501
+    )
 
     return tabledata
 

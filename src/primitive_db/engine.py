@@ -19,8 +19,6 @@ def run():
         metadata = utils.load_metadata()
         user_input = prompt.string("Введите команду: ")
         args = shlex.split(user_input)
-        print(args)
-        return
         command = args[0]
         table_name = utils.parse_table_name(args, command)
 
@@ -33,6 +31,10 @@ def run():
             if command in const.NEEDED_TABLE_DATA
             else None
         )
+
+        if (tabledata is None) and (command in const.NEEDED_TABLE_DATA):
+            print("Таблица не существует.")
+            continue
 
         match (command):
             case const.CMD_CREATE_TABLE:
@@ -47,7 +49,10 @@ def run():
                 core.list_tables(metadata)
                 continue
             case const.CMD_INSERT:
-                changed_tabledata = core.insert(tabledata)
+                values = utils.parse_insert(user_input)
+                if (values is None):
+                    continue
+                changed_tabledata = core.insert(tabledata, values)
                 pass
             case const.CMD_EXIT:
                 is_active = core.exit()
