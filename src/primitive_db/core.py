@@ -1,4 +1,5 @@
 from typing import List
+from prettytable import PrettyTable
 
 from src.primitive_db.constants import (
     DATA_TYPES,
@@ -101,6 +102,27 @@ def insert(tabledata: TableType, values: List[str | int | bool]):
     )
 
     return tabledata
+
+
+def select(table_data: TableType, where_clause=None):
+    columns_names = [column.get("name") for column in table_data.get("columns")]
+    rows = table_data.get("rows")
+
+    if where_clause:
+        rows = [
+            row
+            for row in rows
+            if row.get(where_clause.get("column")) == where_clause.get("value")
+        ]
+
+    table = PrettyTable()
+
+    table.field_names = columns_names
+
+    for row in rows:
+        table.add_row([row.get(column) for column in columns_names])
+
+    print(table)
 
 
 def print_help():

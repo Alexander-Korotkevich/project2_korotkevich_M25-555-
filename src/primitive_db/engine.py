@@ -50,10 +50,14 @@ def run():
                 continue
             case const.CMD_INSERT:
                 values = utils.parse_insert(user_input)
-                if (values is None):
+                if values is None:
                     continue
                 changed_tabledata = core.insert(tabledata, values)
                 pass
+            case const.CMD_SELECT:
+                where_clause = utils.parse_where_condition(user_input)
+                core.select(tabledata, where_clause)
+                continue
             case const.CMD_EXIT:
                 is_active = core.exit()
                 continue

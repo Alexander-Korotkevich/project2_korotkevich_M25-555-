@@ -38,3 +38,4 @@ TABLES_DIR = "data"
 COLUMN_DEFINE_SEP = ":"
 
 KEY_WORD_VALUES = "values"
+KEY_WORD_WHERE = "where"

@@ -6,6 +6,7 @@ from src.primitive_db.constants import (
     COLUMN_DEFINE_SEP,
     COMPLEX_CMD,
     KEY_WORD_VALUES,
+    KEY_WORD_WHERE,
     METADATA_NAME,
     TABLES_DIR,
 )
@@ -119,16 +120,16 @@ def parse_insert(query):
     sql_lower = query.lower()
     values_idx = sql_lower.find(KEY_WORD_VALUES)
     if values_idx == -1:
-       incorrect_value(query)
-       return
+        incorrect_value(query)
+        return
 
     # Ищем скобки с значениями
     open_bracket = query.find("(", values_idx)
     close_bracket = query.rfind(")")
 
     if open_bracket == -1 or close_bracket == -1:
-       incorrect_value(query)
-       return
+        incorrect_value(query)
+        return
 
     # Извлекаем содержимое скобок
     content = query[open_bracket + 1 : close_bracket].strip()
@@ -197,10 +198,39 @@ def convert_value(value_str):
     # Если ничего не подошло - возвращаем как строку (без кавычек)
     return value_str
 
+
 def check_val_type(val: Any, col_type: str):
+    """Проверяет соответствие значения типу колонки"""
+
     if col_type == "str":
         return isinstance(val, str)
     if col_type == "int":
         return type(val) is int
     if col_type == "bool":
         return isinstance(val, bool)
+
+
+def parse_where_condition(where_clause):
+    """Парсит условие WHERE"""
+    where_clause = where_clause.split(KEY_WORD_WHERE)
+    if len(where_clause) != 2:
+        return
+
+    where_clause = where_clause[1].strip()
+
+    # Разделяем по оператору =
+    if "=" not in where_clause:
+        incorrect_value("Не найден оператор = в условии")
+        return
+
+    parts = where_clause.split("=", 1)
+    if len(parts) != 2:
+        incorrect_value("Неверный формат условия")
+        return
+
+    column = parts[0].strip()
+    value_str = parts[1].strip()
+
+    value = convert_value(value_str)
+
+    return {"column": column, "value": value}
