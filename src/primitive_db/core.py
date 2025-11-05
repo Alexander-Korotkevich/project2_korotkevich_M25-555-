@@ -155,6 +155,17 @@ def delete(tabledata: TableType, where_clause):
     print("Запись не найдена")
 
 
+def info(tabledata: TableType):
+    columns = tabledata.get("columns") or []
+    str_columns = ", ".join(
+        [column.get("name") + ":" + column.get("type") for column in columns]
+    )
+
+    print(f'Таблица: {tabledata.get("name")}')
+    print(f"Колонки: {str_columns or 'пусто'}")
+    print(f'Количество записей: {len(tabledata.get("rows"))}')
+
+
 def print_help():
     """Prints the help message for the current mode."""
 
