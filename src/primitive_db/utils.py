@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 from src.primitive_db.constants import (
     COLUMN_DEFINE_SEP,
     COMPLEX_CMD,
+    KEY_WORD_SET,
     KEY_WORD_VALUES,
     KEY_WORD_WHERE,
     METADATA_NAME,
@@ -210,20 +211,21 @@ def check_val_type(val: Any, col_type: str):
         return isinstance(val, bool)
 
 
-def parse_where_condition(where_clause):
-    """Парсит условие WHERE"""
-    where_clause = where_clause.split(KEY_WORD_WHERE)
-    if len(where_clause) != 2:
+def parse_key_word_condition(clause: str, key_word: str):
+    """Парсит условие по ключевому слову"""
+
+    clause = clause.split(key_word)
+    if len(clause) != 2:
         return
 
-    where_clause = where_clause[1].strip()
+    clause = clause[1].strip()
 
     # Разделяем по оператору =
-    if "=" not in where_clause:
+    if "=" not in clause:
         incorrect_value("Не найден оператор = в условии")
         return
 
-    parts = where_clause.split("=", 1)
+    parts = clause.split("=", 1)
     if len(parts) != 2:
         incorrect_value("Неверный формат условия")
         return
@@ -234,3 +236,14 @@ def parse_where_condition(where_clause):
     value = convert_value(value_str)
 
     return {"column": column, "value": value}
+
+def parse_set_condition(clause: str):
+    clause = clause.split(KEY_WORD_WHERE)
+
+    if len(clause) != 2:
+        incorrect_value("Неверный формат условия")
+        return
+    
+    clause = clause[0].strip()
+
+    return parse_key_word_condition(clause, KEY_WORD_SET)

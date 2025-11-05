@@ -1,4 +1,5 @@
 from typing import List
+
 from prettytable import PrettyTable
 
 from src.primitive_db.constants import (
@@ -123,6 +124,20 @@ def select(table_data: TableType, where_clause=None):
         table.add_row([row.get(column) for column in columns_names])
 
     print(table)
+
+
+def update(tabledata: TableType, set_clause, where_clause):
+    rows = tabledata.get("rows")
+
+    for row in rows:
+        if row.get(where_clause.get("column")) == where_clause.get("value"):
+            row[set_clause.get("column")] = set_clause.get("value")
+            print(
+                f'Запись с ID={row.get(ID_COL_NAME)} в таблице "{tabledata.get("name")}" успешно обновлена.'  # noqa: E501
+            )
+            return tabledata
+
+    print("Запись не найдена")
 
 
 def print_help():

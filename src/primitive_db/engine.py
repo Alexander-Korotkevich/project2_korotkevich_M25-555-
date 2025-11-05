@@ -55,9 +55,17 @@ def run():
                 changed_tabledata = core.insert(tabledata, values)
                 pass
             case const.CMD_SELECT:
-                where_clause = utils.parse_where_condition(user_input)
+                where_clause = utils.parse_key_word_condition(
+                    user_input, const.KEY_WORD_WHERE
+                )
                 core.select(tabledata, where_clause)
                 continue
+            case const.CMD_UPDATE:
+                set_clause = utils.parse_set_condition(user_input)
+                where_clause = utils.parse_key_word_condition(
+                    user_input, const.KEY_WORD_WHERE
+                )
+                changed_tabledata = core.update(tabledata, set_clause, where_clause)
             case const.CMD_EXIT:
                 is_active = core.exit()
                 continue
