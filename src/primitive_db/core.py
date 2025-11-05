@@ -2,6 +2,7 @@ from typing import List
 
 from prettytable import PrettyTable
 
+from src.decorators import handle_db_errors
 from src.primitive_db.constants import (
     DATA_TYPES,
     ID_COL_DATA,
@@ -11,6 +12,7 @@ from src.primitive_db.types import ColumnType, MetadataType, TableType
 from src.primitive_db.utils import check_val_type, delete_table, save_table_data
 
 
+@handle_db_errors
 def create_table(
     metadata: MetadataType, table_name: str, columns: List[ColumnType]
 ) -> MetadataType:
@@ -20,9 +22,12 @@ def create_table(
         print(f'Ошибка: Таблица "{table_name}" уже существует')
         return
 
-    if any(column.get("type") not in DATA_TYPES for column in columns):
-        print("Ошибка: Некорректный тип данных")
-        return
+    # Проверка типов данных
+    for column in columns:
+        if column.get("type") not in DATA_TYPES:
+            raise ValueError(
+                f"Некорректный тип данных '{column.get('name')}:{column.get('type')}'"
+            )
 
     # Добавляем колонку ID, если она не была указана пользователем
     if ID_COL_NAME not in columns:
@@ -48,12 +53,12 @@ def create_table(
     return metadata
 
 
+@handle_db_errors
 def drop_table(metadata: MetadataType, table_name: str) -> MetadataType:
     """Удаление таблицы"""
 
     if not metadata.get(table_name):
-        print(f'Ошибка: Таблица "{table_name}" не существует.')
-        return
+        raise KeyError(table_name)
 
     del metadata[table_name]
     delete_table(table_name)
@@ -73,6 +78,7 @@ def list_tables(metadata: MetadataType):
     print(title + (tables_list or "пусто"))
 
 
+@handle_db_errors
 def insert(tabledata: TableType, values: List[str | int | bool]):
     """Создание новой записи в таблицу"""
 
@@ -81,8 +87,7 @@ def insert(tabledata: TableType, values: List[str | int | bool]):
     rows = tabledata.get("rows")
 
     if len(values) != (len(col_without_id)):
-        print("Ошибка: Некорректное количество значений")
-        return
+        raise ValueError("Некорректное количество значений")
 
     row = {ID_COL_NAME: len(rows) + 1}
 
@@ -91,8 +96,7 @@ def insert(tabledata: TableType, values: List[str | int | bool]):
         column_name = col_without_id[i].get("name")
 
         if check_val_type(val, column_type) is False:
-            print(f'Ошибка: Значение {val} не соответствует типу "{column_type}"')
-            return
+            raise ValueError(f'Значение {val} не соответствует типу "{column_type}"')
 
         row[column_name] = val
 
@@ -126,6 +130,7 @@ def select(table_data: TableType, where_clause=None):
     print(table)
 
 
+@handle_db_errors
 def update(tabledata: TableType, set_clause, where_clause):
     rows = tabledata.get("rows")
 

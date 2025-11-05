@@ -2,6 +2,7 @@ import json
 import os.path
 from typing import Any, Dict, List
 
+from src.decorators import handle_db_errors
 from src.primitive_db.constants import (
     COLUMN_DEFINE_SEP,
     COMPLEX_CMD,
@@ -30,16 +31,13 @@ def load_from_file(filepath: str) -> Dict | None:
         print(f"Неожиданная ошибка: {e}")
 
 
+@handle_db_errors
 def save_to_file(filepath: str, data: Any):
     """Сохранение данных в файл"""
 
-    try:
-        with open(filepath, "w", encoding="utf-8") as file:
-            json.dump(data, file, ensure_ascii=False)
-            return True
-    except Exception as e:
-        print(f"Ошибка сохранения: {e}")
-        return False
+    with open(filepath, "w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False)
+        return True
 
 
 def load_metadata() -> MetadataType | None:
@@ -70,6 +68,7 @@ def save_table_data(table_name: str, data: TableType) -> bool:
     return save_to_file(path, data)
 
 
+@handle_db_errors
 def delete_table(table_name: str):
     """Удаление файла таблицы"""
 
@@ -90,10 +89,7 @@ def parse_table_name(list: List[str], command: str) -> str | None:
     return list[1]
 
 
-def incorrect_value(value: str):
-    print(f"Некорректное значение: {value}. Попробуйте снова.")
-
-
+@handle_db_errors
 def parse_table_columns(list: List[str]) -> List[ColumnType] | str:
     """Получение колонок из списка аргументов"""
 
@@ -108,29 +104,27 @@ def parse_table_columns(list: List[str]) -> List[ColumnType] | str:
         splitted = column.split(COLUMN_DEFINE_SEP)
 
         if len(splitted) != 2:
-            incorrect_value(column)
-            return
+            raise ValueError("Неверный формат колонки")
 
         parsed_columns.append({"name": splitted[0], "type": splitted[1]})
 
     return parsed_columns
 
 
+@handle_db_errors
 def parse_insert(query):
     # Находим VALUES и скобки
     sql_lower = query.lower()
     values_idx = sql_lower.find(KEY_WORD_VALUES)
     if values_idx == -1:
-        incorrect_value(query)
-        return
+        raise ValueError("Неверный формат запроса")
 
     # Ищем скобки с значениями
     open_bracket = query.find("(", values_idx)
     close_bracket = query.rfind(")")
 
     if open_bracket == -1 or close_bracket == -1:
-        incorrect_value(query)
-        return
+        raise ValueError("Неверный формат запроса")
 
     # Извлекаем содержимое скобок
     content = query[open_bracket + 1 : close_bracket].strip()
@@ -210,7 +204,7 @@ def check_val_type(val: Any, col_type: str):
     if col_type == "bool":
         return isinstance(val, bool)
 
-
+@handle_db_errors
 def parse_key_word_condition(clause: str, key_word: str):
     """Парсит условие по ключевому слову"""
 
@@ -222,13 +216,11 @@ def parse_key_word_condition(clause: str, key_word: str):
 
     # Разделяем по оператору =
     if "=" not in clause:
-        incorrect_value("Не найден оператор = в условии")
-        return
+        raise ValueError("Не найден оператор = в условии")
 
     parts = clause.split("=", 1)
     if len(parts) != 2:
-        incorrect_value("Неверный формат условия")
-        return
+        raise ValueError("Неверный формат условия")
 
     column = parts[0].strip()
     value_str = parts[1].strip()
@@ -237,13 +229,13 @@ def parse_key_word_condition(clause: str, key_word: str):
 
     return {"column": column, "value": value}
 
+@handle_db_errors
 def parse_set_condition(clause: str):
     clause = clause.split(KEY_WORD_WHERE)
 
     if len(clause) != 2:
-        incorrect_value("Неверный формат условия")
-        return
-    
+        raise ValueError("Неверный формат условия")
+
     clause = clause[0].strip()
 
     return parse_key_word_condition(clause, KEY_WORD_SET)
