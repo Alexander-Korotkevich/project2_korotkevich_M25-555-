@@ -140,6 +140,21 @@ def update(tabledata: TableType, set_clause, where_clause):
     print("Запись не найдена")
 
 
+def delete(tabledata: TableType, where_clause):
+    rows = tabledata.get("rows")
+
+    for row in rows:
+        if row.get(where_clause.get("column")) == where_clause.get("value"):
+            rows.remove(row)
+            print(
+                f'Запись с ID={row.get(ID_COL_NAME)} в таблице "{tabledata.get("name")}" успешно удалена.'  # noqa: E501
+            )
+
+            return tabledata
+
+    print("Запись не найдена")
+
+
 def print_help():
     """Prints the help message for the current mode."""
 

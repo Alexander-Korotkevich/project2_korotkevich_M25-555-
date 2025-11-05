@@ -66,6 +66,11 @@ def run():
                     user_input, const.KEY_WORD_WHERE
                 )
                 changed_tabledata = core.update(tabledata, set_clause, where_clause)
+            case const.CMD_DELETE:
+                where_clause = utils.parse_key_word_condition(
+                    user_input, const.KEY_WORD_WHERE
+                )
+                changed_tabledata = core.delete(tabledata, where_clause)
             case const.CMD_EXIT:
                 is_active = core.exit()
                 continue
