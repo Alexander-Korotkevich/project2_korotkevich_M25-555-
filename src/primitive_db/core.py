@@ -2,7 +2,7 @@ from typing import List
 
 from prettytable import PrettyTable
 
-from src.decorators import handle_db_errors
+from src.decorators import confirm_action, handle_db_errors
 from src.primitive_db.constants import (
     DATA_TYPES,
     ID_COL_DATA,
@@ -53,6 +53,7 @@ def create_table(
     return metadata
 
 
+@confirm_action("удаление таблицы")
 @handle_db_errors
 def drop_table(metadata: MetadataType, table_name: str) -> MetadataType:
     """Удаление таблицы"""
@@ -145,6 +146,7 @@ def update(tabledata: TableType, set_clause, where_clause):
     print("Запись не найдена")
 
 
+@confirm_action("удаление записи")
 def delete(tabledata: TableType, where_clause):
     rows = tabledata.get("rows")
 
