@@ -89,5 +89,14 @@ table2,
 
 `delete from table1 where age = 32`
 
-
 [![Demo](https://asciinema.org/a/osqIhSAMg6K7cc5lkgQcnDl5T.svg)](https://asciinema.org/a/osqIhSAMg6K7cc5lkgQcnDl5T)
+
+<hr/>
+
+## Дополнительно
+
+Добавлен единый обработчик ошибок.
+
+Также операции `drop_table` и `delete` требуют дополнительного подтверждения.
+
+[![Demo](https://asciinema.org/a/YWplrp6qoF9GQ9bNxleeoH8ox.svg)](https://asciinema.org/a/YWplrp6qoF9GQ9bNxleeoH8ox)
