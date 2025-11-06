@@ -2,7 +2,7 @@ from typing import List
 
 from prettytable import PrettyTable
 
-from src.decorators import confirm_action, handle_db_errors
+from src.decorators import confirm_action, handle_db_errors, log_time
 from src.primitive_db.constants import (
     DATA_TYPES,
     ID_COL_DATA,
@@ -78,8 +78,8 @@ def list_tables(metadata: MetadataType):
 
     print(title + (tables_list or "пусто"))
 
-
 @handle_db_errors
+@log_time
 def insert(tabledata: TableType, values: List[str | int | bool]):
     """Создание новой записи в таблицу"""
 
@@ -109,7 +109,7 @@ def insert(tabledata: TableType, values: List[str | int | bool]):
 
     return tabledata
 
-
+@log_time
 def select(table_data: TableType, where_clause=None):
     columns_names = [column.get("name") for column in table_data.get("columns")]
     rows = table_data.get("rows")
