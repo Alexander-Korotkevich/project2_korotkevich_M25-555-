@@ -14,6 +14,8 @@ from src.primitive_db.utils import convert_value
 
 @handle_db_errors
 def parse_set_condition(clause: str):
+    """Парсит условие по ключевому слову SET"""
+
     clause = clause.split(KEY_WORD_WHERE)
 
     if len(clause) != 2:
@@ -90,6 +92,7 @@ def parse_values(content):
 
 @handle_db_errors
 def parse_insert(query):
+    """Парсит запрос на вставку данных в таблицу"""
     # Находим VALUES и скобки
     sql_lower = query.lower()
     values_idx = sql_lower.find(KEY_WORD_VALUES)

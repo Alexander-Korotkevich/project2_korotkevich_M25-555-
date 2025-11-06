@@ -122,6 +122,7 @@ cache_result = create_cacher()
 
 @log_time
 def select(table_data: TableType, where_clause=None):
+    """Выборка записей из таблицы """
     # Создаем ключ для кэша на основе параметров
     cache_key = f"select_{table_data.get('name')}_{str(where_clause)}"
 
@@ -152,6 +153,7 @@ def select(table_data: TableType, where_clause=None):
 
 @handle_db_errors
 def update(tabledata: TableType, set_clause, where_clause):
+    """Обновление записи в таблице"""
     rows = tabledata.get("rows")
 
     for row in rows:
@@ -167,6 +169,7 @@ def update(tabledata: TableType, set_clause, where_clause):
 
 @confirm_action("удаление записи")
 def delete(tabledata: TableType, where_clause):
+    """Удаление записи в таблице"""
     rows = tabledata.get("rows")
 
     for row in rows:
@@ -182,6 +185,7 @@ def delete(tabledata: TableType, where_clause):
 
 
 def info(tabledata: TableType):
+    """Показать информацию о таблице"""
     columns = tabledata.get("columns") or []
     str_columns = ", ".join(
         [column.get("name") + ":" + column.get("type") for column in columns]

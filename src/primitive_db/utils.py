@@ -107,6 +107,7 @@ def check_val_type(val: Any, col_type: str):
 
 
 def create_cacher():
+    """Создает кэшер"""
     cache = {}
 
     def cache_result(key, value_func):
