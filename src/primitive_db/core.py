@@ -9,7 +9,12 @@ from src.primitive_db.constants import (
     ID_COL_NAME,
 )
 from src.primitive_db.types import ColumnType, MetadataType, TableType
-from src.primitive_db.utils import check_val_type, delete_table, save_table_data
+from src.primitive_db.utils import (
+    check_val_type,
+    create_cacher,
+    delete_table,
+    save_table_data,
+)
 
 
 @handle_db_errors
@@ -78,6 +83,7 @@ def list_tables(metadata: MetadataType):
 
     print(title + (tables_list or "пусто"))
 
+
 @handle_db_errors
 @log_time
 def insert(tabledata: TableType, values: List[str | int | bool]):
@@ -109,26 +115,39 @@ def insert(tabledata: TableType, values: List[str | int | bool]):
 
     return tabledata
 
+
+# Создаем кэшер (один раз при загрузке модуля)
+cache_result = create_cacher()
+
+
 @log_time
 def select(table_data: TableType, where_clause=None):
-    columns_names = [column.get("name") for column in table_data.get("columns")]
-    rows = table_data.get("rows")
+    # Создаем ключ для кэша на основе параметров
+    cache_key = f"select_{table_data.get('name')}_{str(where_clause)}"
 
-    if where_clause:
-        rows = [
-            row
-            for row in rows
-            if row.get(where_clause.get("column")) == where_clause.get("value")
-        ]
+    # Функция для вычисления результата (если нет в кэше)
+    def compute_result():
+        columns_names = [column.get("name") for column in table_data.get("columns")]
+        rows = table_data.get("rows")
 
-    table = PrettyTable()
+        if where_clause:
+            rows = [
+                row
+                for row in rows
+                if row.get(where_clause.get("column")) == where_clause.get("value")
+            ]
 
-    table.field_names = columns_names
+        table = PrettyTable()
+        table.field_names = columns_names
 
-    for row in rows:
-        table.add_row([row.get(column) for column in columns_names])
+        for row in rows:
+            table.add_row([row.get(column) for column in columns_names])
 
-    print(table)
+        return str(table)  # Преобразуем в строку для кэширования
+
+    # Используем кэшер
+    result_table = cache_result(cache_key, compute_result)
+    print(result_table)
 
 
 @handle_db_errors

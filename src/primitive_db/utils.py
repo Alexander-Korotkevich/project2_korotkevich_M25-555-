@@ -204,6 +204,7 @@ def check_val_type(val: Any, col_type: str):
     if col_type == "bool":
         return isinstance(val, bool)
 
+
 @handle_db_errors
 def parse_key_word_condition(clause: str, key_word: str):
     """Парсит условие по ключевому слову"""
@@ -229,6 +230,7 @@ def parse_key_word_condition(clause: str, key_word: str):
 
     return {"column": column, "value": value}
 
+
 @handle_db_errors
 def parse_set_condition(clause: str):
     clause = clause.split(KEY_WORD_WHERE)
@@ -239,3 +241,17 @@ def parse_set_condition(clause: str):
     clause = clause[0].strip()
 
     return parse_key_word_condition(clause, KEY_WORD_SET)
+
+
+def create_cacher():
+    cache = {}
+
+    def cache_result(key, value_func):
+        if key in cache:
+            return cache[key]
+
+        value = value_func()
+        cache[key] = value
+        return value
+
+    return cache_result
