@@ -4,6 +4,7 @@ import prompt
 
 import src.primitive_db.constants as const
 import src.primitive_db.core as core
+import src.primitive_db.parser as parser
 import src.primitive_db.utils as utils
 
 
@@ -20,7 +21,7 @@ def run():
         user_input = prompt.string("Введите команду: ")
         args = shlex.split(user_input)
         command = args[0]
-        table_name = utils.parse_table_name(args, command)
+        table_name = parser.parse_table_name(args, command)
 
         if not table_name and (command in const.NEEDED_TABLE_NAME):
             print("Укажите название таблицы.")
@@ -38,7 +39,7 @@ def run():
 
         match (command):
             case const.CMD_CREATE_TABLE:
-                columns = utils.parse_table_columns(args)
+                columns = parser.parse_table_columns(args)
                 if columns is None:
                     continue
 
@@ -49,31 +50,31 @@ def run():
                 core.list_tables(metadata)
                 continue
             case const.CMD_INSERT:
-                values = utils.parse_insert(user_input)
+                values = parser.parse_insert(user_input)
                 if values is None:
                     continue
                 changed_tabledata = core.insert(tabledata, values)
                 pass
             case const.CMD_SELECT:
-                where_clause = utils.parse_key_word_condition(
+                where_clause = parser.parse_key_word_condition(
                     user_input, const.KEY_WORD_WHERE
                 )
                 core.select(tabledata, where_clause)
                 continue
             case const.CMD_UPDATE:
-                set_clause = utils.parse_set_condition(user_input)
-                where_clause = utils.parse_key_word_condition(
+                set_clause = parser.parse_set_condition(user_input)
+                where_clause = parser.parse_key_word_condition(
                     user_input, const.KEY_WORD_WHERE
                 )
                 changed_tabledata = core.update(tabledata, set_clause, where_clause)
             case const.CMD_DELETE:
-                where_clause = utils.parse_key_word_condition(
+                where_clause = parser.parse_key_word_condition(
                     user_input, const.KEY_WORD_WHERE
                 )
                 changed_tabledata = core.delete(tabledata, where_clause)
             case const.CMD_INFO:
                 core.info(tabledata)
-                continue    
+                continue
             case const.CMD_EXIT:
                 is_active = core.exit()
                 continue
