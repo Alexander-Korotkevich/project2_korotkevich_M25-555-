@@ -1,4 +1,5 @@
 import functools
+
 import prompt
 
 
@@ -8,7 +9,7 @@ def handle_db_errors(func):
             return func(*args, **kwargs)
         except FileNotFoundError:
             print(
-                "Ошибка: Файл данных не найден. Возможно, база данных не инициализирована."
+                "Ошибка: Файл данных не найден. Возможно, база данных не инициализирована."  # noqa: E501
             )
         except KeyError as e:
             print(f"Ошибка: Таблица или столбец {e} не найден.")
